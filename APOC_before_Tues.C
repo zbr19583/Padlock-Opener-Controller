@@ -22,6 +22,7 @@ void OCSfunction();
 void MOSfunction(char selection);
 void ACSfunction();
 void MSDfunction(char selection);
+void SACSfunction(char selection); //semi automatic
 
 /*********************************************************/
 /***** START OF FTS **************************************/
@@ -148,6 +149,12 @@ void setAutomaticMenu(){
     action3 = "";
 }
 
+void setSemiAutomaticMenu(){
+    menuTitle = " Semi-AUTOMATIC OPERATION MENU"
+    action1 = "Set Clockwise Direction";
+    action2 = "Set CounterClockwise Direction";
+    action3 = "";
+}
 
 void moveServo(char ticks, char direction){
     distance = (float)ticks*(float)(encoderResolution / dialPositions);
@@ -175,8 +182,10 @@ int diagnostics(){
 /***** ERH ***********************************************/
 void ERHfunction(){
     //take actions here to treat errors detected
-    if ((dial_pos > 39) || (dial_pos < 0))
-    machineMessage = "dial position must be 0 - 39";
+    if ((dial_pos > 39) || (dial_pos < 0)){
+        machineMessage = "dial position must be 0 - 39";
+        ERR1 = 1; //*NEW
+    }
     //WARNING: might need to set ERT flag here *NEW
     
 }
@@ -191,12 +200,17 @@ void MSSfunction(){
     if (FFRA) OCSfunction();//skip this for the first run
     //Scan Keyboard for input
     switch (selection){
-            case '1': //this key will...
-            if (OMD == 1) //in manual mode
-            MOSfunction(selection);
             
-            //in idle mode and 1 is pressed
-            else if (OMD == 0){//in idle mode
+            case '1':
+            if (OMD == 1)
+                MOSfunction(selection);
+//            if (OMD == 2)
+//                //do nothing
+            else if (OMD == 3)
+                MSDfunction(selection);
+            else if (OMD == 4)
+                SACSfunction(selection);
+            else if (OMD == 0){
                 if (isSetup){ //*NEW isSetup
                     OMD = 1;
                     setManualMenu();
@@ -207,18 +221,18 @@ void MSSfunction(){
                     machineMessage = "Machine Setup Data not ready"; //*NEW make sure whatever happens after this message is appropriate
                 //should still be in idle mode after this
             }
-//            //in auto mode and 1 is pressed
-//            else if (OMD == 2) //in auto mode
-//            ACSfunction();
-            //in msd mode and 1 is pressed
-            else if (OMD==3)
             break;
             
             
-            case '2': //this key will...
-            if (OMD == 1) //in manual mode and 2 is pressed
-            MOSfunction(selection);
-            //in idle mode and 2 is pressed
+            case '2':
+            if (OMD == 1)
+                MOSfunction(selection);
+//            if (OMD == 2)
+//                //do nothing
+            else if (OMD == 3)
+                MSDfunction(selection);
+            else if (OMD == 4)
+                SACSfunction(selection);
             else if (OMD == 0){
                 if (isSetup) { //*NEW isSetup
                     OMD = 2;
@@ -229,27 +243,48 @@ void MSSfunction(){
                 else
                     machineMessage = "Machine Setup Data not ready"; //*NEW make sure whatever happens after this message is appropriate
             }
-//            //in auto mode and 2 is pressed
-//            else if (OMD == 2)
-//                ACSfunction(selection);
-            //in msd mode and 2 is pressed
-            else if (OMD==3)
             break;
             
             
-            case '3': //this key will...
-            //in msd mode and 3 is pressed
-            if (OMD ==3)
-                MSDfunction(selection);
-            //in manual mode and 3 is pressed
+            case '3':
             if (OMD == 1)
                 MOSfunction(selection);
-            else if (OMD == 0){//in idle mode
+//            if (OMD == 2)
+//                //do nothing
+            else if (OMD == 3)
+                MSDfunction(selection);
+            else if (OMD == 4)
+                SACSfunction(selection);
+            else if (OMD == 0){
                 OMD = 3;
                 setAutomaticMenu();
                 printHeaderAndMenu();
             }
             break;
+            
+            
+            case '4':
+            if (OMD==1)
+                MOSfunction(selection);
+//            if (OMD == 2)
+//                //do nothing
+            else if (OMD==3)
+                MSDfunction(selection);
+            else if (OMD == 4)
+                SACSfunction(selection);
+            else if (OMD == 0){
+                if (isSetup) { //*NEW isSetup
+                    OMD = 4;
+                    setAutomaticMenu();
+                    machineMessage = "Semi-Automatic Mode Accepted";
+                    printHeaderAndMenu();
+                }
+                else
+                machineMessage = "Machine Setup Data not ready"; //*NEW make sure whatever happens after this message is appropriate
+            }
+            break;
+            
+            
             case '5': //this key will...
             //in idle mode and 5 is pressed
             if (OMD == 0){
@@ -271,6 +306,7 @@ void MCSfunction(){
     if (OMD==1) MOSfunction(0);
     if (OMD==2) ACSfunction();
     if (OMD==3) MSDfunction(1);
+    if (OMD==4) SACSfunction(1);
     
 }
 /***** END OF MCS ****************************************/
@@ -373,17 +409,27 @@ void ACSfunction(){
 
 
 /***** START OF SACS **************************************/
-void SACSfunction(){
+void SACSfunction(char selection){
     //prompt before starting ACS
-	printf("Press Enter to Begin Automatic Mode\n");
+	printf("Press Enter to Begin Semi-Automatic Mode\n");
 	getchar(); //prompts user to press enter
 
-
-
-
-
-
-
+    if (selection){
+        switch (selection){
+                case '1': //this key will...
+                    printf("How many ticks clockwise?")
+                    gets(str);
+                    input1 = atoi(str);
+                    moveServo(input1, 0);
+                    break;
+                case '2': //this key will...
+                    printf("How many ticks counterclockwise?")
+                    gets(str);
+                    input1 = atoi(str);
+                    moveServo(input1, 1);
+                    break;
+        }
+}
 /***** END OF SACS ****************************************/
 
 
@@ -420,6 +466,8 @@ char *getCurrentMode(){
             return "Automatic"; //*NEW
             case 3:
             return "MSD";   //*NEW
+            case 4:
+            return "Semi-Automatic";
             case 5:
             return "System Turned Off";
         default:
