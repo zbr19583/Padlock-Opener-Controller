@@ -16,6 +16,7 @@ typedef int bool;
 //NOTES: ERT error flag?(when dial_pos input is out of bounds)
 //need to make sure that we can exit from auto, man, and msd mode with keyboard input of '5'
 //changed everything to unsigned int, make sure it works
+//revert to code in email if nothing works
 
 /**** FUNCTION PROTOTYPES ********************************/
 void OCSfunction();
@@ -151,8 +152,8 @@ void setAutomaticMenu(){
 
 void setSemiAutomaticMenu(){
     menuTitle = " Semi-AUTOMATIC OPERATION MENU"
-    action1 = "Set Clockwise Direction";
-    action2 = "Set CounterClockwise Direction";
+    action1 = "Move Clockwise";
+    action2 = "Move Counterclockwise";
     action3 = "";
 }
 
@@ -332,14 +333,14 @@ void ACSfunction(){
     //prompt before starting ACS
 	printf("Press Enter to Begin Automatic Mode\n");
 	getchar(); //prompts user to press enter
-	counter = 0;
+	counter = 0; //place counter before algorithm?
     
     //might need to declare str for each number
     printf("Enter the first number >");
     gets(str);
     input1 = atoi(str);
     while ((input1 > 39) || (input1 < 0)){
-        printf("input must be 0 - 39, Enter input again> ");
+        printf("input must be 0 - 39, Enter input > ");
         gets(str);
         input1 = atoi(str);
 	}
@@ -348,7 +349,7 @@ void ACSfunction(){
     gets(str);
     input2 = atoi(str);
     while ((input2 > 39) || (input2 < 0)){
-        printf("input must be 0 - 39, Enter input again> ");
+        printf("input must be 0 - 39, Enter input > ");
         gets(str);
         input2 = atoi(str);
 	}
@@ -357,7 +358,7 @@ void ACSfunction(){
     gets(str);
     input3 = atoi(str);
     while ((input3 > 39) || (input3 < 0)){
-        printf("input must be 0 - 39, Enter input again> ");
+        printf("input must be 0 - 39, Enter input > ");
         gets(str);
         input3 = atoi(str);
 	}
